@@ -1,0 +1,24 @@
+import path ;
+import testing ;
+
+project  ytl-assembler-test
+    : requirements
+        <define>BOOST_ALL_NO_LIB
+        <include>$(boost-root)
+        <include>$(ytl-part-root)
+        <include>$(dependency-path)
+        <library>/boost/test//boost_unit_test_framework
+        <link>static
+        <warnings>all
+        <toolset>gcc:<cxxflags>-Wextra
+        <toolset>gcc:<cxxflags>-Wno-unused-local-typedefs
+        <toolset>gcc:<cxxflags>-pedantic
+        <toolset>gcc:<cxxflags>-std=c++11
+    ;
+
+test-suite ytl-assembler :
+    [ run [ path.join _bin_util gen.cpp ] : <location>../ ]
+    [ run x86-value.cpp ]
+    [ run x86-instruction.cpp ]
+    ;
+
