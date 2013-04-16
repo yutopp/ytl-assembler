@@ -13,13 +13,12 @@ namespace ytl
             class register_code
             {
             public:
-                static byte_t const value = Code;
+                YTL_CONSTEXPR static byte_t const value = Code;
+
+                YTL_CONSTEXPR register_code() {}
 
             public:
-                register_code() {}
-
-            public:
-                byte_t code() const { return value; }
+                YTL_CONSTEXPR byte_t code() const { return value; }
             };
 
         } // namespece detail

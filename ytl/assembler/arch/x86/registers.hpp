@@ -20,7 +20,7 @@
 
 #define RegisterDef( code, tag, name )                                                  \
     namespace types { typedef assembler::detail::register_code<code, tag> name##_t; }   \
-    namespace { types::name##_t const name; }
+    namespace { YTL_CONSTEXPR auto const name = types::name##_t(); }
 
 
 namespace ytl

@@ -1,23 +1,53 @@
 #include <boost/test/unit_test.hpp>
 
+#include <ytl/base/config.hpp>
 #include <ytl/assembler/arch/x86/instruction.hpp>
 #include <ytl/assembler/arch/x86/show.hpp>
 
 #include "_bin_util/gen.hpp"
 
 
-#define EXP(...) __VA_ARGS__
 
-#define INST_EXP( inst, ... ) \
-    instruction:: inst <mode_tag>( b, __VA_ARGS__ ); \
-    std::cout << #inst << " " << #__VA_ARGS__ << " => ";
+#define EXPAND_ARGS(...) __VA_ARGS__
 
-#define OP_EQ( prm, res ) \
+
+#if defined(YTL_HAS_CONSTEXPR)
+
+# define CE_SHOW_EXP( inst, ... ) \
+    std::cout << "static_assert   :: " << #inst << " " << #__VA_ARGS__ << " => ";
+
+# define CE_INST_EXP( inst, ... ) \
+    instruction:: inst <mode_tag>( __VA_ARGS__ )
+
+# define CE_OP_EQ( prm, res ) \
     { \
-        detail::instruction_buffer b; \
-        INST_EXP prm\
-        BOOST_CHECK_EQUAL( b, _b( EXP res ) );std::cout << b << std::endl; \
+        CE_SHOW_EXP prm \
+        YTL_CONSTEXPR auto const b = CE_INST_EXP prm; \
+        std::cout << b << std::endl; \
+        static_assert( b == _b( EXPAND_ARGS res ), "" ); \
+    }
+
+#else
+
+# define CE_OP_EQ(...) /*nothing*/
+
+#endif
+
+
+# define SHOW_EXP( inst, ... ) \
+    std::cout << "assert(dynamic) :: " << #inst << " " << #__VA_ARGS__ << " => ";
+
+#define INST_EXP(inst, ...) \
+    instruction:: inst <mode_tag>( __VA_ARGS__ );
+
+#define OP_EQ(prm, res) \
+    { \
+        SHOW_EXP prm \
+        auto const b = INST_EXP prm; \
+        std::cout << b << std::endl; \
+        BOOST_CHECK_EQUAL( b, _b( EXPAND_ARGS res ) ); \
     } \
+    CE_OP_EQ( prm, res )
 
 
 //

@@ -1,5 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
+#include <ytl/base/config.hpp>
+
 #include "gen.hpp"
 
 
@@ -7,14 +9,31 @@
 //
 void asm_bin_util__b()
 {
-    using namespace ytl::assembler::x86;
+    using namespace ytl::assembler::x86::detail;
 
-    BOOST_CHECK( detail::mod_rm_sib_disp_buffer( detail::buffer_construct, 1, 2, 3, 4, 5, 6 ) == _b( 1, 2, 3, 4, 5, 6 ) );
-    BOOST_CHECK( detail::mod_rm_sib_disp_buffer( detail::buffer_construct, 1, 2 ) != _b( 1, 2, 3, 4, 5, 6 ) );
-    BOOST_CHECK( detail::mod_rm_sib_disp_buffer( detail::buffer_construct, 1, 2, 3, 4, 5, 6 ) != _b( 1, 2 ) );
-    BOOST_CHECK( detail::mod_rm_sib_disp_buffer( detail::buffer_construct, 1, 2 ) != _b( 2, 1 ) );
+#if defined(YTL_HAS_CONSTEXPR)
 
-    BOOST_CHECK( detail::instruction_buffer( detail::buffer_construct, 1, 2, 3, 4, 5, 6 ) == _b( 1, 2, 3, 4, 5, 6 ) );
+    static_assert( mod_rm_sib_disp_buffer( buffer_construct, 1, 2, 3, 4, 5, 6 ).size() == 6, "" );
+    static_assert( _b( 1, 2, 3, 4, 5, 6 ).size() == 6, "" );
+
+    static_assert( mod_rm_sib_disp_buffer( buffer_construct, 1, 2, 3, 4, 5, 6 ) == _b( 1, 2, 3, 4, 5, 6 ), "" );
+    static_assert( mod_rm_sib_disp_buffer( buffer_construct, 1, 2 ) != _b( 1, 2, 3, 4, 5, 6 ), "" );
+    static_assert( mod_rm_sib_disp_buffer( buffer_construct, 1, 2, 3, 4, 5, 6 ) != _b( 1, 2 ), "" );
+    static_assert( mod_rm_sib_disp_buffer( buffer_construct, 1, 2 ) != _b( 2, 1 ), "" );
+
+    static_assert( instruction_buffer( buffer_construct, 1, 2, 3, 4, 5, 6 ) == _b( 1, 2, 3, 4, 5, 6 ), "" );
+
+#endif
+
+    BOOST_CHECK( mod_rm_sib_disp_buffer( buffer_construct, 1, 2, 3, 4, 5, 6 ).size() == 6 );
+    BOOST_CHECK( _b( 1, 2, 3, 4, 5, 6 ).size() == 6 );
+
+    BOOST_CHECK( mod_rm_sib_disp_buffer( buffer_construct, 1, 2, 3, 4, 5, 6 ) == _b( 1, 2, 3, 4, 5, 6 ) );
+    BOOST_CHECK( mod_rm_sib_disp_buffer( buffer_construct, 1, 2 ) != _b( 1, 2, 3, 4, 5, 6 ) );
+    BOOST_CHECK( mod_rm_sib_disp_buffer( buffer_construct, 1, 2, 3, 4, 5, 6 ) != _b( 1, 2 ) );
+    BOOST_CHECK( mod_rm_sib_disp_buffer( buffer_construct, 1, 2 ) != _b( 2, 1 ) );
+
+    BOOST_CHECK( instruction_buffer( buffer_construct, 1, 2, 3, 4, 5, 6 ) == _b( 1, 2, 3, 4, 5, 6 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

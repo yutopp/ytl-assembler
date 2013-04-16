@@ -17,7 +17,8 @@ project  ytl-assembler-test
     ;
 
 test-suite ytl-assembler :
-    [ run [ path.join _bin_util gen.cpp ] : <location>../ ]
+    [ run [ path.join _bin_util gen.cpp ] ]
+    [ run x86-basic.cpp ]
     [ run x86-value.cpp ]
     [ run x86-instruction.cpp ]
     ;

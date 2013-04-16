@@ -14,13 +14,13 @@ namespace ytl
         {
             namespace detail
             {
-                template<typename T, typename U, uint8_t N>
-                std::basic_ostream<T, U>& operator<<( std::basic_ostream<T, U>& os, short_buffer<N> const& b )
+                template<typename SizeType, SizeType N>
+                std::ostream& operator<<( std::ostream& os, short_buffer<SizeType, N> const& b )
                 {
                     auto const manip = os.flags();
                     os << "[ " << std::hex;
-                    for( std::size_t i=0; i<b.size; ++i ) {
-                        os << "'0x" << std::setfill('0') << std::setw( 2 ) << static_cast<int>( b.bin[i] ) << "' ";
+                    for( std::size_t i=0; i<b.size(); ++i ) {
+                        os << "'0x" << std::setfill('0') << std::setw( 2 ) << static_cast<int>( b[i] ) << "' ";
                     }
                     os.setf( manip );
                     os << "]";
