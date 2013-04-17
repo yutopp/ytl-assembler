@@ -13,7 +13,7 @@ def read_x86_table( domain = "http://ref.x86asm.net/", filename = "coder32.html"
 #    for table in [ x for x in html.find_all("table") if x.get("class") == ["ref_table", "notpublic"] ]:
     for table in [ x for x in html.find_all("table") if x.get("class") == ["ref_table", "notpublic"] ][0:1]:
 #        for tbody in [ x for x in table.find_all("tbody") ]:
-        for tbody in [ x for x in table.find_all("tbody") ][8:14]:#[48:70]:
+        for tbody in [ x for x in table.find_all("tbody") ][0:100]:#[48:70]:
             tds = tbody.find_all("td")
             access_index = 0
             
@@ -127,6 +127,10 @@ def read_x86_table( domain = "http://ref.x86asm.net/", filename = "coder32.html"
 generated_mnemonic = {}
 
 special_inst = {
+    "DAA": [],
+    "DAS": [],
+    "AAA": [],
+    "AAS": [],
     "PUSHA": [],
     "PUSHAD": [],
     "POPA": [],
@@ -135,12 +139,41 @@ special_inst = {
 }
 
 pattern = {
+    (): [ ( None,
+            [],
+            [],
+            None
+          )
+        ],
+    ('imm8',): [ ( None,
+                   [ "byte_value_t" ],
+                   [ False ],
+                   [ "p0" ]
+                  )
+               ],
+    ('r16/32',): [ ( [ "byte_t Code" ],
+                     [ "assembler::detail::register_code<Code, reg::types::reg_16bit_tag>" ],
+                     [ False ],
+                     None
+                   ),
+                   ( [ "byte_t Code" ],
+                     [ "assembler::detail::register_code<Code, reg::types::reg_32bit_tag>" ],
+                     [ False ],
+                     None
+                     ),
+                 ],
     ('r/m8','r8'): [ ( [ "byte_t Code" ],
                        [ "types::r_m8", "assembler::detail::register_code<Code, reg::types::reg_8bit_tag>" ],
                        [ False, False ],
                        None
                      ),
                    ],
+    ('r/m16','r16'): [ ( [ "byte_t Code" ],
+                         [ "types::r_m16", "assembler::detail::register_code<Code, reg::types::reg_16bit_tag>" ],
+                         [ False, False ],
+                         None
+                       )
+                     ],
     ('r/m16/32', 'r16/32' ): [ ( [ "byte_t Code" ],
                                  [ "types::r_m16", "assembler::detail::register_code<Code, reg::types::reg_16bit_tag>" ],
                                  [ False, False ],
@@ -216,22 +249,50 @@ pattern = {
                              [ "p1" ]
                            ),
                          ],
+    ('cs',): [ ( None,
+                 [ "reg::types::cs_t" ],
+                 [ True ],
+                 None
+               )
+             ],
+    ('ds',): [ ( None,
+                 [ "reg::types::ds_t" ],
+                 [ True ],
+                 None
+               )
+             ],
+    ('es',): [ ( None,
+                 [ "reg::types::es_t" ],
+                 [ True ],
+                 None
+               )
+             ],
+    ('ss',): [ ( None,
+                 [ "reg::types::ss_t" ],
+                 [ True ],
+                 None
+               )
+             ]
 }
 
-def generate_x86_ytl_code_entry( mnemonic ):
-    entry_code = "template<typename BitsTag>\n" \
-               + "YTL_CONSTEXPR auto {0}()\n".format( mnemonic ) \
-               + "    -> decltype( generic_instruction_call<detail::{0}_impl, BitsTag>() )\n".format( mnemonic ) \
-               + "{\n" \
-               + "    return generic_instruction_call<detail::{0}_impl, BitsTag>();\n".format( mnemonic ) \
-               + "}\n"
-    for i in range( 1, 5 ):
-        entry_code += "template<typename BitsTag, {0}>\n".format( ", ".join( [ "typename P{0}".format( i ) for i in range( 0, i )] ) ) \
-                   +  "YTL_CONSTEXPR auto {0}( {1} )\n".format( mnemonic, ", ".join( [ "P{0}&& p{0}".format( i ) for i in range( 0, i )] ) ) \
-                   + "    -> decltype( generic_instruction_call<detail::{0}_impl, BitsTag>( {1} ) )\n".format( mnemonic, ", ".join( [ "std::forward<P{0}>( p{0} )".format( i ) for i in range( 0, i )] ) ) \
+def generate_x86_ytl_code_entry( mnemonic, args ):
+    print( mnemonic, args )
+    entry_code = ""
+    if ( len( args ) == 0 ) or ( len( args ) == 1 and args[0] == 0 ):
+        entry_code += "template<typename BitsTag>\n" \
+                   +  "YTL_CONSTEXPR auto {0}()\n".format( mnemonic ) \
+                   +  "    -> decltype( generic_instruction_call<detail::{0}_impl, BitsTag>() )\n".format( mnemonic ) \
                    +  "{\n" \
-                   +  "    return generic_instruction_call<detail::{0}_impl, BitsTag>( {1} );\n".format( mnemonic, ", ".join( [ "std::forward<P{0}>( p{0} )".format( i ) for i in range( 0, i )] ) ) \
+                   +  "    return generic_instruction_call<detail::{0}_impl, BitsTag>();\n".format( mnemonic ) \
                    +  "}\n"
+    else:
+        for num in args:
+            entry_code += "template<typename BitsTag, {0}>\n".format( ", ".join( [ "typename P{0}".format( i ) for i in range( 0, num )] ) ) \
+                       +  "YTL_CONSTEXPR auto {0}( {1} )\n".format( mnemonic, ", ".join( [ "P{0}&& p{0}".format( i ) for i in range( 0, num )] ) ) \
+                       +  "    -> decltype( generic_instruction_call<detail::{0}_impl, BitsTag>( {1} ) )\n".format( mnemonic, ", ".join( [ "std::forward<P{0}>( p{0} )".format( i ) for i in range( 0, num )] ) ) \
+                       +  "{\n" \
+                       +  "    return generic_instruction_call<detail::{0}_impl, BitsTag>( {1} );\n".format( mnemonic, ", ".join( [ "std::forward<P{0}>( p{0} )".format( i ) for i in range( 0, num )] ) ) \
+                       +  "}\n"
     
     return entry_code
 
@@ -247,9 +308,10 @@ def generate_x86_ytl_code( prefix, prefix_0f, opcode, with_register, byte_o_str,
     # create commmon interface funciton
     if mnemonic not in generated_mnemonic:
         generated_mnemonic[mnemonic] = {
-            "entry_code": generate_x86_ytl_code_entry( mnemonic ),
+            "args_num": [],
             "detail_code_list": []
         }
+    args_num = generated_mnemonic[mnemonic]["args_num"]
     detail_code_list = generated_mnemonic[mnemonic]["detail_code_list"]
     
     
@@ -279,7 +341,11 @@ def generate_x86_ytl_code( prefix, prefix_0f, opcode, with_register, byte_o_str,
         c_is_masked_param = decl[2]
         c_appendix = decl[3]
         
+        if len( c_parameter_list ) not in args_num:
+            args_num.append( len( c_parameter_list ) )
+            
         c_parameter_list = ", ".join( ["{0} const&{1}".format(p, "" if c_is_masked_param[index] else  " p{0}".format( index ) ) for index, p in enumerate(decl[1])] )
+        
         
         #
         c_decl = ""
@@ -304,25 +370,28 @@ def generate_x86_ytl_code( prefix, prefix_0f, opcode, with_register, byte_o_str,
         
         
         #
-        c_statement = "buffer"
+        c_expression = "buffer"
         if c_body_prefix is not None:
-            c_statement += " / " + c_body_prefix
+            c_expression += " / " + c_body_prefix
         
-        c_statement += " / " + "/ ".join( [ "static_cast<byte_t>( 0x{0:02x} )".format( p ) for p in opcode ] )
+        op_exp = "/ ".join( [ "static_cast<byte_t>( 0x{0:02x} )".format( p ) for p in opcode ] )
+        if with_register:
+            op_exp = op_exp[:25] + " + Code" + op_exp[25:]
+        c_expression += " / " + op_exp
         
         if modrm_sib_disp is not None:
-            c_statement += " / " + modrm_sib_disp
+            c_expression += " / " + modrm_sib_disp
         if c_appendix is not None:
             for ap in c_appendix:
-                 c_statement += " / " + ap
-        print( c_statement )
+                 c_expression += " / " + ap
+        print( c_expression )
         
         
         #
         c_definition  = c_decl + "\n" \
-                      + "    -> decltype( " + c_statement + " )\n" \
+                      + "    -> decltype( " + c_expression + " )\n" \
                       + "{\n" \
-                      + "    return " + c_statement + ";\n" \
+                      + "    return " + c_expression + ";\n" \
                       + "}\n"
         
         
@@ -343,7 +412,7 @@ if __name__ == "__main__":
     read_x86_table()
     
     output_body = ""
-    for k, v in generated_mnemonic.items():
+    for k, v in sorted( generated_mnemonic.items() ):
         output_body += "////////////////////////////////////////////////////\n" \
                     +  "// -- {0}\n".format( k ) \
                     +  "// implementation\n" \
@@ -358,7 +427,7 @@ if __name__ == "__main__":
                     +  "} // namespace detail\n" \
                     +  "\n" \
                     +  "// interface\n" \
-                    +  v["entry_code"] \
+                    +  generate_x86_ytl_code_entry( k, v["args_num"] )  \
                     +  "////////////////////////////////////////////////////\n" \
                     +  "\n"
     

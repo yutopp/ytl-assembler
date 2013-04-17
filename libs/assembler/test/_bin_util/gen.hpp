@@ -6,11 +6,11 @@
 #if !defined(YTL_OLD_IMPL)
 
 template<typename ...T>
-YTL_CONSTEXPR auto _b( T&&... xs ) -> ytl::assembler::x86::detail::short_buffer<ytl::uint8_t, sizeof...(T)>
+YTL_CONSTEXPR auto _b( T&&... xs ) -> ytl::assembler::detail::short_buffer<ytl::uint8_t, sizeof...(T)>
 {
-    using namespace ytl::assembler::x86::detail;
+    using namespace ytl::assembler::detail;
 
-    return ytl::assembler::x86::detail::short_buffer<ytl::uint8_t, sizeof...(T)>( buffer_construct, std::forward<T>( xs )... );
+    return short_buffer<ytl::uint8_t, sizeof...(T)>( buffer_construct, std::forward<T>( xs )... );
 }
 
 #else
@@ -22,9 +22,9 @@ YTL_CONSTEXPR auto _b( T&&... xs ) -> ytl::assembler::x86::detail::short_buffer<
 # define FORWARD_P(z, n, unused) std::forward<T##n>( p##n )
 # define GEN_B(z, n, unused) \
     template<BOOST_PP_ENUM_PARAMS(n, typename T)> \
-    auto _b( BOOST_PP_ENUM_BINARY_PARAMS(n, T, && p) ) -> ytl::assembler::x86::detail::short_buffer<ytl::uint8_t, 64/*temporary*/> \
+    auto _b( BOOST_PP_ENUM_BINARY_PARAMS(n, T, && p) ) -> ytl::assembler::detail::short_buffer<ytl::uint8_t, 64/*temporary*/> \
     { \
-        using namespace ytl::assembler::x86::detail; \
+        using namespace ytl::assembler::detail; \
         \
         return short_buffer<ytl::uint8_t, 64/*temporary*/>( buffer_construct, BOOST_PP_ENUM(n, FORWARD_P, ) ); \
     }

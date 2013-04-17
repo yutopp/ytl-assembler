@@ -41,13 +41,13 @@
     instruction:: inst <mode_tag>( __VA_ARGS__ );
 
 #define OP_EQ(prm, res) \
+    CE_OP_EQ( prm, res ) \
     { \
         SHOW_EXP prm \
         auto const b = INST_EXP prm; \
         std::cout << b << std::endl; \
         BOOST_CHECK_EQUAL( b, _b( EXPAND_ARGS res ) ); \
-    } \
-    CE_OP_EQ( prm, res )
+    }
 
 
 //
@@ -104,6 +104,12 @@ void asm_x86_instruction_OR_32()
     OP_EQ( ( OR, reg::eax, word[42] ), ( 0x0d, 0x2a, 0x00 ) )
     // OR EAX, 42
     OP_EQ( ( OR, reg::eax, dword[42] ), ( 0x0d, 0x2a, 0x00, 0x00, 0x00 ) )/**/
+
+
+
+    //
+    OP_EQ( ( ARPL, reg::ax, reg::ax ), ( 0x63, 0xc0 ) )/**/
+    
 }
 
 

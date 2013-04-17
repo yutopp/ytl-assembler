@@ -10,25 +10,22 @@ namespace ytl
 {
     namespace assembler
     {
-        namespace x86
+        namespace detail
         {
-            namespace detail
+            template<typename SizeType, SizeType N>
+            std::ostream& operator<<( std::ostream& os, short_buffer<SizeType, N> const& b )
             {
-                template<typename SizeType, SizeType N>
-                std::ostream& operator<<( std::ostream& os, short_buffer<SizeType, N> const& b )
-                {
-                    auto const manip = os.flags();
-                    os << "[ " << std::hex;
-                    for( std::size_t i=0; i<b.size(); ++i ) {
-                        os << "'0x" << std::setfill('0') << std::setw( 2 ) << static_cast<int>( b[i] ) << "' ";
-                    }
-                    os.setf( manip );
-                    os << "]";
-                    return os;
+                auto const manip = os.flags();
+                os << "[ " << std::hex;
+                for( std::size_t i=0; i<b.size(); ++i ) {
+                    os << "'0x" << std::setfill('0') << std::setw( 2 ) << static_cast<int>( b[i] ) << "' ";
                 }
+                os.setf( manip );
+                os << "]";
+                return os;
+            }
 
-            } // namespace detail
-        } // namespace x86
+        } // namespace detail
     } // namespace assembler
 } // namespace ytl
 

@@ -36,14 +36,14 @@
     std::cout << "assert(dynamic) :: " << "generate_mod_rm_sib_disp " << #__VA_ARGS__ << " => ";
 
 #define OP_EQ(prm, res) \
+    CE_OP_EQ( prm, res ) \
     { \
         using namespace ytl::assembler::x86; \
         SHOW_EXP prm \
         auto const b = generate_mod_rm_sib_disp prm; \
         std::cout << b << std::endl; \
         BOOST_CHECK_EQUAL( b, _b( EXPAND_ARGS res ) ); \
-    } \
-    CE_OP_EQ( prm, res )
+    }
 
 
 //

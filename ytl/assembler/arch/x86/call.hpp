@@ -72,6 +72,7 @@ public: \
                     YTL_ASM_DEF_HAS_PATTERN_IMPL_REST
                 };
 
+
 #undef YTL_ASM_DEF_HAS_PATTERN_IMPL_DECL
 #undef YTL_ASM_DEF_HAS_PATTERN
 #undef YTL_ASM_DEF_HAS_PATTERN_IMPL_REST
@@ -206,34 +207,7 @@ public: \
             } // namespace detail
 
 
-            // regN0, regN1 => r/mN0, regN1
-            template<
-                template<typename> class Impl,
-                typename BitsTag,
-                byte_t Code0, typename Tag0,
-                byte_t Code1, typename Tag1
-            >
-            inline YTL_CONSTEXPR auto generic_instruction_call(
-                assembler::detail::register_code<Code0, Tag0> const& p0,
-                assembler::detail::register_code<Code1, Tag1> const& p1
-                ) -> decltype(
-                        Impl<
-                            decltype( detail::size_prefix_injector<Tag1::value, BitsTag::value, BitsTag>()( detail::empty_buffer() ) )
-                        >().op(
-                            detail::size_prefix_injector<Tag1::value, BitsTag::value, BitsTag >()( detail::empty_buffer() ),
-                            types::r_m<Tag0::value>( detail::mod_rm_registers<Tag0::value, Tag0>( p0 ) ),
-                            p1
-                            )
-                     )
-            {
-                return Impl<
-                            decltype( detail::size_prefix_injector<Tag1::value, BitsTag::value, BitsTag>()( detail::empty_buffer() ) )
-                       >().op(
-                            detail::size_prefix_injector<Tag1::value, BitsTag::value, BitsTag>()( detail::empty_buffer() ),
-                            types::r_m<Tag0::value>( detail::mod_rm_registers<Tag0::value, Tag0>( p0 ) ),
-                            p1
-                            );
-            }
+
 
             // rN0, memN1(N0,N1 == 16 or 32) => rN0, r/mN0 if op has operand(rN0, r/mN1) and has no operand(rN0, memN1)
             template<
@@ -296,6 +270,52 @@ public: \
                             detail::size_prefix_injector<Tag1::value, Bits0, BitsTag>()( detail::empty_buffer() ),
                             types::r_m<Tag1::value>( p0 ),
                             p1
+                            );
+            }
+
+            // r, r16 => r/m16, r16 if op has no operand(memN0, rN1)
+            template<
+                template<typename> class Impl,
+                typename BitsTag,
+                byte_t Code0,
+                byte_t Code1
+            >
+            inline YTL_CONSTEXPR auto generic_instruction_call(
+                assembler::detail::register_code<Code0, reg::types::reg_16bit_tag> const& p0,
+                assembler::detail::register_code<Code1, reg::types::reg_16bit_tag> const& p1,
+                typename std::enable_if<
+                    !YTL_ASM_PATTERN( Impl, rm1632_r1632 ) // && !YTL_ASM_PATTERN( Impl, memN0 )
+                >::type* = 0
+                ) -> decltype(
+                        Impl<decltype( detail::empty_buffer() )>().op(
+                            detail::empty_buffer(), types::r_m<16>( p0 ), p1
+                            )
+                     )
+            {
+                return Impl<decltype( detail::empty_buffer() )>().op(
+                            detail::empty_buffer(), types::r_m<16>( p0 ), p1
+                            );
+            }
+            // mem16, r16 => r/m16, r16 if op has no operand(memN0, rN1)
+            template<
+                template<typename> class Impl,
+                typename BitsTag,
+                byte_t Code1
+            >
+            inline YTL_CONSTEXPR auto generic_instruction_call(
+                types::memory_access<16> const& p0,
+                assembler::detail::register_code<Code1, reg::types::reg_16bit_tag> const& p1,
+                typename std::enable_if<
+                    !YTL_ASM_PATTERN( Impl, rm1632_r1632 ) // && !YTL_ASM_PATTERN( Impl, memN0 )
+                >::type* = 0
+                ) -> decltype(
+                        Impl<decltype( detail::empty_buffer() )>().op(
+                            detail::empty_buffer(), types::r_m<16>( p0 ), p1
+                            )
+                     )
+            {
+                return Impl<decltype( detail::empty_buffer() )>().op(
+                            detail::empty_buffer(), types::r_m<16>( p0 ), p1
                             );
             }
 
@@ -396,12 +416,34 @@ public: \
                             );
             }
 
-
-
-
-
-
-
+            // regN0, regN1 => r/mN0, regN1
+            template<
+                template<typename> class Impl,
+                typename BitsTag,
+                byte_t Code0, typename Tag0,
+                byte_t Code1, typename Tag1
+            >
+            inline YTL_CONSTEXPR auto generic_instruction_call(
+                assembler::detail::register_code<Code0, Tag0> const& p0,
+                assembler::detail::register_code<Code1, Tag1> const& p1
+                ) -> decltype(
+                        Impl<
+                            decltype( detail::size_prefix_injector<Tag1::value, BitsTag::value, BitsTag>()( detail::empty_buffer() ) )
+                        >().op(
+                            detail::size_prefix_injector<Tag1::value, BitsTag::value, BitsTag >()( detail::empty_buffer() ),
+                            types::r_m<Tag0::value>( detail::mod_rm_registers<Tag0::value, Tag0>( p0 ) ),
+                            p1
+                            )
+                     )
+            {
+                return Impl<
+                            decltype( detail::size_prefix_injector<Tag1::value, BitsTag::value, BitsTag>()( detail::empty_buffer() ) )
+                       >().op(
+                            detail::size_prefix_injector<Tag1::value, BitsTag::value, BitsTag>()( detail::empty_buffer() ),
+                            types::r_m<Tag0::value>( detail::mod_rm_registers<Tag0::value, Tag0>( p0 ) ),
+                            p1
+                            );
+            }
         } // namespace x86
     } // namesoace assembler
 } // namespace ytl

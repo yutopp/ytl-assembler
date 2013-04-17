@@ -1,7 +1,7 @@
 import path ;
 import testing ;
 
-project  ytl-assembler-test
+project ytl-assembler-test
     : requirements
         <define>BOOST_ALL_NO_LIB
         <include>$(boost-root)
