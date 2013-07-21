@@ -2,10 +2,6 @@
 
 #include <ytl/base/config.hpp>
 #include <ytl/assembler/arch/x86/instruction.hpp>
-#include <ytl/assembler/arch/x86/show.hpp>
-
-#include "_bin_util/gen.hpp"
-
 
 
 #define EXPAND_ARGS(...) __VA_ARGS__
@@ -24,7 +20,7 @@
         CE_SHOW_EXP prm \
         YTL_CONSTEXPR auto const b = CE_INST_EXP prm; \
         std::cout << b << std::endl; \
-        static_assert( b == _b( EXPAND_ARGS res ), "" ); \
+        static_assert( b == ytl::make_short_buffer( EXPAND_ARGS res ), "" ); \
     }
 
 #else
@@ -46,7 +42,7 @@
         SHOW_EXP prm \
         auto const b = INST_EXP prm; \
         std::cout << b << std::endl; \
-        BOOST_CHECK_EQUAL( b, _b( EXPAND_ARGS res ) ); \
+        BOOST_CHECK_EQUAL( b, ytl::make_short_buffer( EXPAND_ARGS res ) ); \
     }
 
 
@@ -56,7 +52,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_instruction_OR_32()
+BOOST_AUTO_TEST_CASE( asm_x86_instruction_OR_32 )
 {
     using namespace ytl::assembler::x86;
     typedef mode::bits_32_tag       mode_tag;
@@ -114,13 +110,10 @@ void asm_x86_instruction_OR_32()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// init_unit_test_suite
 //
 boost::unit_test::test_suite* init_unit_test_suite( int, char* [] )
 {
-    boost::unit_test::test_suite* const test = BOOST_TEST_SUITE( "ytl.assembler x86 instruction test" );
+    boost::unit_test::framework::master_test_suite().p_name.value = "ytl.assembler x86 instruction test";
 
-    test->add( BOOST_TEST_CASE( &asm_x86_instruction_OR_32 ) );
-
-    return test;
+    return nullptr;
 }

@@ -2,9 +2,6 @@
 
 #include <ytl/base/config.hpp>
 #include <ytl/assembler/arch/x86/value.hpp>
-#include <ytl/assembler/arch/x86/show.hpp>
-
-#include "_bin_util/gen.hpp"
 
 
 
@@ -22,7 +19,7 @@
         CE_SHOW_EXP prm \
         YTL_CONSTEXPR auto const b = generate_mod_rm_sib_disp prm; \
         std::cout << b << std::endl; \
-        static_assert( b == _b( EXPAND_ARGS res ), "" ); \
+        static_assert( b == ytl::make_short_buffer( EXPAND_ARGS res ), "" ); \
     }
 
 #else
@@ -42,7 +39,7 @@
         SHOW_EXP prm \
         auto const b = generate_mod_rm_sib_disp prm; \
         std::cout << b << std::endl; \
-        BOOST_CHECK_EQUAL( b, _b( EXPAND_ARGS res ) ); \
+        BOOST_CHECK_EQUAL( b, ytl::make_short_buffer( EXPAND_ARGS res ) ); \
     }
 
 
@@ -52,7 +49,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_modrm_sib_disp_reg_mem16()
+BOOST_AUTO_TEST_CASE( asm_x86_modrm_sib_disp_reg_mem16 )
 {
     /*
         Mod 0b00
@@ -147,7 +144,7 @@ void asm_x86_modrm_sib_disp_reg_mem16()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_modrm_sib_disp_reg_mem32()
+BOOST_AUTO_TEST_CASE( asm_x86_modrm_sib_disp_reg_mem32 )
 {
     /*
         Mod 0b00
@@ -233,22 +230,17 @@ void asm_x86_modrm_sib_disp_reg_mem32()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_modrm_sib_disp_reg_mem_from_opcode()
+BOOST_AUTO_TEST_CASE( asm_x86_modrm_sib_disp_reg_mem_from_opcode )
 {
     OP_EQ( ( 2, reg::dx ), ( 0xd2 ) );
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// init_unit_test_suite
 //
 boost::unit_test::test_suite* init_unit_test_suite( int, char* [] )
 {
-    boost::unit_test::test_suite* const test = BOOST_TEST_SUITE( "ytl.assembler x86 value test" );
+    boost::unit_test::framework::master_test_suite().p_name.value = "ytl.assembler x86 value test";
 
-    test->add( BOOST_TEST_CASE( &asm_x86_modrm_sib_disp_reg_mem16 ) );
-    test->add( BOOST_TEST_CASE( &asm_x86_modrm_sib_disp_reg_mem32 ) );
-    test->add( BOOST_TEST_CASE( &asm_x86_modrm_sib_disp_reg_mem_from_opcode ) );
-
-    return test;
+    return nullptr;
 }

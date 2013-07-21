@@ -11,12 +11,11 @@
 #endif
 
 #include <ytl/base/constexpr_utility.hpp>
+#include <ytl/base/buffer/short_buffer.hpp>
 
 #include "../../config.hpp"
-#include "../../detail/short_buffer.hpp"
 
 #include "basic.hpp"
-
 
 namespace ytl
 {
@@ -526,13 +525,13 @@ namespace ytl
             //
             namespace detail
             {
-                typedef assembler::detail::short_buffer<uint8_t, 0> empty_buffer;
+                typedef ytl::detail::short_buffer<uint8_t, 0> empty_buffer;
 
                 // for modr/m and sib and displacement(max 6bytes)
-                typedef assembler::detail::short_buffer<uint8_t, 6> mod_rm_sib_disp_buffer;
+                typedef ytl::detail::short_buffer<uint8_t, 6> mod_rm_sib_disp_buffer;
 
                 // for instruction(max 16bytes[15?])
-                typedef assembler::detail::short_buffer<uint8_t, 16> instruction_buffer;
+                typedef ytl::detail::short_buffer<uint8_t, 16> instruction_buffer;
 
             } // namespace detail
 
@@ -593,7 +592,7 @@ namespace ytl
                     template<unsigned int N, typename Tag>
                     inline YTL_CONSTEXPR result_type operator()( detail::mod_rm_registers<N, Tag> const& v ) const
                     {
-                        return assembler::detail::fit_to<result_type>(
+                        return ytl::detail::fit_to<result_type>(
                                     empty_buffer() / make_mod_rm( v.mod_rm, reg_op_ )
                                     );
                     }
@@ -608,7 +607,7 @@ namespace ytl
                     template<unsigned int N>
                     inline YTL_CONSTEXPR result_type operator()( detail::only_mod_rm<N> const& v ) const
                     {
-                        return assembler::detail::fit_to<result_type>(
+                        return ytl::detail::fit_to<result_type>(
                                     empty_buffer() / make_mod_rm( v, reg_op_ )
                                     );
                     }
@@ -616,14 +615,14 @@ namespace ytl
                     template<unsigned int N, typename ValueType>
                     inline YTL_CONSTEXPR result_type operator()( detail::mod_rm_disp<N, ValueType> const& v ) const
                     {
-                        return assembler::detail::fit_to<result_type>(
+                        return ytl::detail::fit_to<result_type>(
                                     empty_buffer() / make_mod_rm( v.mod_rm, reg_op_ ) / v.disp.value
                                     );
                     }
 
                     inline YTL_CONSTEXPR result_type operator()( detail::mod_rm32_sib const& v ) const
                     {
-                        return assembler::detail::fit_to<result_type>(
+                        return ytl::detail::fit_to<result_type>(
                                     empty_buffer() / make_mod_rm( v.mod_rm, reg_op_ ) / make_sib( v.sib )
                                     );
                     }
@@ -631,7 +630,7 @@ namespace ytl
                     template<typename ValueType>
                     inline YTL_CONSTEXPR result_type operator()( detail::mod_rm32_sib_disp<ValueType> const& v ) const
                     {
-                        return assembler::detail::fit_to<result_type>(
+                        return ytl::detail::fit_to<result_type>(
                                     empty_buffer() / make_mod_rm( v.mod_rm_sib.mod_rm, reg_op_ ) / make_sib( v.mod_rm_sib.sib ) / v.disp.value
                                     );
                     }

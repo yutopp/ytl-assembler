@@ -4,11 +4,10 @@
 
 #include <ytl/base/config.hpp>
 #include <ytl/assembler/arch/x86/basic.hpp>
-#include <ytl/assembler/arch/x86/show.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_multiply_type()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_multiply_type )
 {
     using namespace ytl::assembler::x86;
 
@@ -41,7 +40,7 @@ void asm_x86_basic_address32_multiply_type()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_multiply_value()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_multiply_value )
 {
     using namespace ytl::assembler::x86;
 
@@ -125,7 +124,7 @@ void asm_x86_basic_address32_multiply_value()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_base_multiply_type()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_base_multiply_type )
 {
     using namespace ytl::assembler::x86;
 
@@ -148,7 +147,7 @@ void asm_x86_basic_address32_base_multiply_type()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_base_multiply_value()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_base_multiply_value )
 {
     using namespace ytl::assembler::x86;
 
@@ -198,7 +197,7 @@ void asm_x86_basic_address32_base_multiply_value()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_disp_type()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_disp_type )
 {
     using namespace ytl::assembler::x86;
 
@@ -238,7 +237,7 @@ void asm_x86_basic_address32_disp_type()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_disp_value()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_disp_value )
 {
     using namespace ytl::assembler::x86;
 
@@ -328,7 +327,7 @@ void asm_x86_basic_address32_disp_value()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_multiply_disp_type()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_multiply_disp_type )
 {
     using namespace ytl::assembler::x86;
 
@@ -378,7 +377,7 @@ void asm_x86_basic_address32_multiply_disp_type()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_multiply_disp_value()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_multiply_disp_value )
 {
     using namespace ytl::assembler::x86;
 
@@ -509,7 +508,7 @@ void asm_x86_basic_address32_multiply_disp_value()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_base_multiply_disp_type()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_base_multiply_disp_type )
 {
     using namespace ytl::assembler::x86;
 
@@ -559,7 +558,7 @@ void asm_x86_basic_address32_base_multiply_disp_type()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void asm_x86_basic_address32_base_multiply_disp_value()
+BOOST_AUTO_TEST_CASE( asm_x86_basic_address32_base_multiply_disp_value )
 {
     using namespace ytl::assembler::x86;
 
@@ -687,28 +686,11 @@ void asm_x86_basic_address32_base_multiply_disp_value()
 
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
-// init_unit_test_suite
 //
 boost::unit_test::test_suite* init_unit_test_suite( int, char* [] )
 {
-    boost::unit_test::test_suite* const test = BOOST_TEST_SUITE( "ytl.assembler x86 basic test" );
+    boost::unit_test::framework::master_test_suite().p_name.value = "ytl.assembler x86 basic test";
 
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_multiply_type ) );
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_multiply_value ) );
-
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_base_multiply_type ) );
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_base_multiply_value ) );
-
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_disp_type ) );
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_disp_value ) );
-
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_multiply_disp_type ) );
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_multiply_disp_value ) );
-
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_base_multiply_disp_type ) );
-    test->add( BOOST_TEST_CASE( &asm_x86_basic_address32_base_multiply_disp_value ) );
-
-    return test;
+    return nullptr;
 }
